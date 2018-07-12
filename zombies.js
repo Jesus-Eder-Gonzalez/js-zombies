@@ -31,19 +31,17 @@ class Item {
  * @property {number} damage
  */
 
+/**
+ * Weapon Extends Item Class
+ * -----------------------------
+ */
+
 class Weapon extends Item {
   constructor(name, damage) {
     super(name);
     this.damage = damage;
   }
 }
-
-/**
- * Weapon Extends Item Class
- * -----------------------------
- */
-
-
 
 /**
  * Class => Food(name, energy)
@@ -67,6 +65,12 @@ class Weapon extends Item {
  * -----------------------------
  */
 
+class Food extends Item {
+  constructor(name, energy) {
+    super(name);
+    this.energy = energy;
+  }
+}
 
 
 /**
@@ -91,6 +95,61 @@ class Weapon extends Item {
  * @property {method} getMaxHealth         Returns private variable `maxHealth`.
  */
 
+class Player {
+
+  constructor(name, health, strength, speed) {
+
+    this.name = name;
+    this.health = health;
+    this.strength = strength;
+    this.speed = speed;
+    this._pack = [];
+    this._maxHealth = health;
+    this.isAlive = true;
+    this.equipped = false;
+    this.getPack = function () { return this._pack; };
+    this.getMaxHealth = function () { return this._maxHealth; };
+
+  }
+
+  checkPack() {
+    let playerPack = this.getPack();
+
+    if (playerPack.length > 0) {
+      for (let i = 0; i < playerPack.length; i++) {
+        console.log('Item' + (i + 1) + ': ' + playerPack[i]);
+      }
+    } else {
+      console.log('The pack is empty.');
+    }
+  }
+
+  takeItem(item) {
+    let playerPack = this.getPack();
+
+    if (playerPack.length < 3) {
+      playerPack.push(item);
+      console.log(item.name + " was added to " + this.name + "'s pack.");
+      return true;
+    } else {
+      console.log('The pack is full. The item could not be stored.');
+      return false;
+    }
+  }
+
+  discardItem(item) {
+    let playerPack = this.getPack();
+    let indexOfRemoval = playerPack.indexOf(item);
+    if(indexOfRemoval){
+      playerPack.splice(indexOfRemoval,1);
+      console.log(this.name + ' discarded ' + item.name + 'from their pack.');
+      return true;
+    } else {
+      console.log(this.name + ' didn\'t find ' + item.name + 'in their pack. Nothing was discarded.');
+      return false;
+    }
+  }
+}
 
 /**
  * Player Class Method => checkPack()
@@ -103,7 +162,6 @@ class Weapon extends Item {
  *
  * @name checkPack
  */
-
 
 /**
  * Player Class Method => takeItem(item)
