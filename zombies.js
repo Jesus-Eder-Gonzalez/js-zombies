@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Class => Item(name)
  * -----------------------------
@@ -8,6 +10,9 @@
  * @property {string} name
  */
 
+function Item(name) {
+  this.name = name;
+}
 
 /**
  * Class => Weapon(name, damage)
@@ -31,7 +36,13 @@
  * -----------------------------
  */
 
+function Weapon(name, damage) {
+  Item.call(this, name);
+  this.damage = damage;
+}
 
+Weapon.prototype = Object.create(Item.prototype);
+Weapon.prototype.constructor = Weapon;
 
 /**
  * Class => Food(name, energy)
@@ -55,7 +66,13 @@
  * -----------------------------
  */
 
+function Food(name, energy) {
+  Item.call(this, name);
+  this.energy = energy;
+}
 
+Food.prototype = Object.create(Item.prototype);
+Food.prototype.constructor = Food;
 
 /**
  * Class => Player(name, health, strength, speed)
@@ -79,6 +96,25 @@
  * @property {method} getMaxHealth         Returns private variable `maxHealth`.
  */
 
+function Player(name, health, strength, speed) {
+  let _pack = [];
+  let _maxHealth = health;
+
+  this.name = name;
+  this.health = health;
+  this.strength = strength;
+  this.speed = speed;
+  this.isAlive = true;
+  this.equipped = false;
+
+  this.getPack = function () {
+    return _pack;
+  }
+
+  this.getMaxHealth = function () {
+    return _maxHealth;
+  }
+}
 
 /**
  * Player Class Method => checkPack()
@@ -92,6 +128,16 @@
  * @name checkPack
  */
 
+Player.prototype.checkPack = function () {
+  let playerPack = this.getPack();
+  if (playerPack.length > 0) {
+    playerPack.forEach((itemInPack, i) => {
+      console.log('Item' + (i + 1) + ': ' + itemInPack);
+    });
+  } else {
+    console.log('The pack is empty.');
+  }
+}
 
 /**
  * Player Class Method => takeItem(item)
