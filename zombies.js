@@ -140,8 +140,9 @@ class Player {
   discardItem(item) {
     let playerPack = this.getPack();
     let indexOfRemoval = playerPack.indexOf(item);
-    if(indexOfRemoval){
-      playerPack.splice(indexOfRemoval,1);
+
+    if (indexOfRemoval > -1) {
+      playerPack.splice(indexOfRemoval, 1);
       console.log(this.name + ' discarded ' + item.name + 'from their pack.');
       return true;
     } else {
@@ -149,6 +150,48 @@ class Player {
       return false;
     }
   }
+
+  equip(itemToEquip) {
+
+    if ((itemToEquip instanceof Weapon)) {
+      let wasItInPack = this.discardItem(itemToEquip);
+
+      if ((this.equipped !== false) && (wasItInPack)) {
+        this.takeItem(this.equipped);
+        this.equipped = itemToEquip;
+      } else if ((this.equipped === false) && (wasItInPack)) {
+        this.equipped = itemToEquip;
+      }
+    }
+
+    return false;
+  }
+
+  eat(itemToEat) {
+    if ((itemToEat instanceof Food)) {
+
+      let wasItInPack = this.discardItem(itemToEat);
+
+      if (wasItInPack) {
+
+        let maxHealth = this.getMaxHealth();
+        this.health += itemToEat.energy;
+
+        if (this.health > maxHealth) {
+          this.health = maxHealth;
+        }
+      }
+    }
+  }
+
+  useItem(item) {
+    if (item instanceof Weapon) {
+      this.equip(item);
+    } else if (item instanceof Food) {
+      this.eat(item);
+    }
+  }
+
 }
 
 /**
@@ -386,6 +429,19 @@ class Player {
  * -----------------------------
  */
 
+//SELF TEST STUFF
+var player = new Player("Lee", 100, 15, 7);
+// var battery = new Item("Battery");
+// var banana = new Food("Banana", 35);
+// player.equip(battery);
+// player.equip(banana);
+var dagger = new Weapon("Dagger", 10);
+var nuke = new Weapon("Nuke", 100);
+player.takeItem(dagger);
+player.takeItem(nuke);
+player.equip(dagger);
+player.equip(nuke);
+// player.equipped.should.equal(dagger);
 
 
 
