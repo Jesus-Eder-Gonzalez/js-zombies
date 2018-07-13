@@ -116,6 +116,40 @@ function Player(name, health, strength, speed) {
   }
 }
 
+/** 
+* Player Class Method => isItInPack
+ * -----------------------------
+ * Player checks to see if the item is in the pack, 
+ * returns a boolean or index number depending on the return type.
+ * 
+ * @param {Item} item 
+ * @return {Number}
+ */
+
+Player.prototype.isItInPack = function (item) {
+  return this.getPack().indexOf(item);
+}
+
+/** 
+* Player Class Method => packRemoveOrReplace
+ * -----------------------------
+ * Player checks to see if the item is in the pack, 
+ * if it is removes the item or replaces it. Otherwise it 
+ * returns false
+ * 
+ * @param {Number} indexOfRemoval
+ * @param {Item} itemThatReplaces
+ */
+
+Player.prototype.packRemoveOrReplace = function (indexOfRemoval, itemThatReplaces) {
+
+  if (itemThatReplaces) {
+    this.getPack().splice(indexOfRemoval, 1, itemThatReplaces);
+  } else {
+    this.getPack().splice(indexOfRemoval, 1);
+  }
+}
+
 /**
  * Player Class Method => checkPack()
  * -----------------------------
@@ -130,10 +164,9 @@ function Player(name, health, strength, speed) {
 
 Player.prototype.checkPack = function () {
   let playerPack = this.getPack();
-  console.log(playerPack);
   if (playerPack.length > 0) {
     playerPack.forEach((itemInPack, i) => {
-      console.log('Item' + (i + 1) + ': ' + itemInPack);
+      console.log('Item' + (i + 1) + ': ' + itemInPack.name);
     });
   } else {
     console.log('The pack is empty.');
@@ -197,12 +230,11 @@ Player.prototype.takeItem = function (item) {
  */
 
 Player.prototype.discardItem = function (item) {
-  let playerPack = this.getPack();
-  let indexOfItem = playerPack.indexOf(item);
+  let indexOfItem = this.isItInPack(item);
   let success = false;
 
   if (indexOfItem > -1) {
-    playerPack.splice(indexOfItem, 1);
+    this.packRemoveOrReplace(indexOfItem);
     console.log(this.name + ' threw ' + item.name + ' out of the pack.');
     success = true;
   }
@@ -231,7 +263,24 @@ Player.prototype.discardItem = function (item) {
  * @param {Weapon} itemToEquip  The weapon item to equip.
  */
 
+Player.prototype.equip = function (itemToEquip) {
+  if (itemToEquip instanceof Weapon) {
+    let indexOfItem = this.isItInPack(itemToEquip);
 
+    if (indexOfItem > -1) {
+
+      if (this.equipped !== false) {
+        console.log((this.equipped.name) + ' swapped for ' + itemToEquip.name + '.');
+        this.packRemoveOrReplace(indexOfItem, this.equipped);
+      } else {
+        this.packRemoveOrReplace(indexOfItem);
+      }
+
+      this.equipped = itemToEquip;
+
+    }
+  }
+}
 
 /**
  * Player Class Method => eat(itemToEat)
@@ -252,7 +301,20 @@ Player.prototype.discardItem = function (item) {
  * @param {Food} itemToEat  The food item to eat.
  */
 
+Player.prototype.eat = function (itemToEat) {
+  if (itemToEat instanceof Food) {
+    let indexOfItem = this.isItInPack(itemToEat);
 
+    if (indexOfItem > -1) {
+      this.packRemoveOrReplace(indexOfItem);
+      this.health += itemToEat.energy;
+
+      if (this.health > this.getMaxHealth()) {
+        this.health = this.getMaxHealth();
+      }
+    }
+  }
+}
 /**
  * Player Class Method => useItem(item)
  * -----------------------------
