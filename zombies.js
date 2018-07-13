@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Class => Item(name)
  * -----------------------------
@@ -8,6 +10,9 @@
  * @property {string} name
  */
 
+function Item(name) {
+  this.name = name;
+}
 
 /**
  * Class => Weapon(name, damage)
@@ -31,7 +36,13 @@
  * -----------------------------
  */
 
+function Weapon(name, damage) {
+  Item.call(this, name);
+  this.damage = damage;
+}
 
+Weapon.prototype = Object.create(Item.prototype);
+Weapon.prototype.constructor = Weapon;
 
 /**
  * Class => Food(name, energy)
@@ -55,7 +66,13 @@
  * -----------------------------
  */
 
+function Food(name, energy) {
+  Item.call(this, name);
+  this.energy = energy;
+}
 
+Food.prototype = Object.create(Item.prototype);
+Food.prototype.constructor = Food;
 
 /**
  * Class => Player(name, health, strength, speed)
@@ -79,6 +96,59 @@
  * @property {method} getMaxHealth         Returns private variable `maxHealth`.
  */
 
+function Player(name, health, strength, speed) {
+  let _pack = [];
+  let _maxHealth = health;
+
+  this.name = name;
+  this.health = health;
+  this.strength = strength;
+  this.speed = speed;
+  this.isAlive = true;
+  this.equipped = false;
+
+  this.getPack = function () {
+    return _pack;
+  }
+
+  this.getMaxHealth = function () {
+    return _maxHealth;
+  }
+}
+
+/** 
+* Player Class Method => isItInPack
+ * -----------------------------
+ * Player checks to see if the item is in the pack, 
+ * returns a boolean or index number depending on the return type.
+ * 
+ * @param {Item} item 
+ * @return {Number}
+ */
+
+Player.prototype.isItInPack = function (item) {
+  return this.getPack().indexOf(item);
+}
+
+/** 
+* Player Class Method => packRemoveOrReplace
+ * -----------------------------
+ * Player checks to see if the item is in the pack, 
+ * if it is removes the item or replaces it. Otherwise it 
+ * returns false
+ * 
+ * @param {Number} indexOfRemoval
+ * @param {Item} itemThatReplaces
+ */
+
+Player.prototype.packRemoveOrReplace = function (indexOfRemoval, itemThatReplaces) {
+
+  if (itemThatReplaces) {
+    this.getPack().splice(indexOfRemoval, 1, itemThatReplaces);
+  } else {
+    this.getPack().splice(indexOfRemoval, 1);
+  }
+}
 
 /**
  * Player Class Method => checkPack()
@@ -92,6 +162,16 @@
  * @name checkPack
  */
 
+Player.prototype.checkPack = function () {
+  let playerPack = this.getPack();
+  if (playerPack.length > 0) {
+    playerPack.forEach((itemInPack, i) => {
+      console.log('Item' + (i + 1) + ': ' + itemInPack.name);
+    });
+  } else {
+    console.log('The pack is empty.');
+  }
+}
 
 /**
  * Player Class Method => takeItem(item)
@@ -111,6 +191,17 @@
  * @return {boolean} true/false     Whether player was able to store item in pack.
  */
 
+Player.prototype.takeItem = function (item) {
+  let playerPack = this.getPack();
+
+  if (playerPack.length < 3) {
+    playerPack.push(item);
+    console.log(this.name + ' added ' + item.name + ' to pack.');
+  } else {
+    console.log('The pack is full, item could not be stored.');
+    return false;
+  }
+}
 
 /**
  * Player Class Method => discardItem(item)
@@ -138,6 +229,19 @@
  * @return {boolean} true/false     Whether player was able to remove item from pack.
  */
 
+Player.prototype.discardItem = function (item) {
+  let indexOfItem = this.isItInPack(item);
+  let success = false;
+
+  if (indexOfItem > -1) {
+    this.packRemoveOrReplace(indexOfItem);
+    console.log(this.name + ' threw ' + item.name + ' out of the pack.');
+    success = true;
+  }
+
+  console.log('Nothing was found, so nothing was discarded.');
+  return success;
+}
 
 /**
  * Player Class Method => equip(itemToEquip)
@@ -159,6 +263,24 @@
  * @param {Weapon} itemToEquip  The weapon item to equip.
  */
 
+Player.prototype.equip = function (itemToEquip) {
+  if (itemToEquip instanceof Weapon) {
+    let indexOfItem = this.isItInPack(itemToEquip);
+
+    if (indexOfItem > -1) {
+
+      if (this.equipped !== false) {
+        console.log((this.equipped.name) + ' swapped for ' + itemToEquip.name + '.');
+        this.packRemoveOrReplace(indexOfItem, this.equipped);
+      } else {
+        this.packRemoveOrReplace(indexOfItem);
+      }
+
+      this.equipped = itemToEquip;
+
+    }
+  }
+}
 
 /**
  * Player Class Method => eat(itemToEat)
@@ -179,6 +301,20 @@
  * @param {Food} itemToEat  The food item to eat.
  */
 
+Player.prototype.eat = function (itemToEat) {
+  if (itemToEat instanceof Food) {
+    let indexOfItem = this.isItInPack(itemToEat);
+
+    if (indexOfItem > -1) {
+      this.packRemoveOrReplace(indexOfItem);
+      this.health += itemToEat.energy;
+
+      if (this.health > this.getMaxHealth()) {
+        this.health = this.getMaxHealth();
+      }
+    }
+  }
+}
 
 /**
  * Player Class Method => useItem(item)
@@ -193,6 +329,15 @@
  * @param {Item/Weapon/Food} item   The item to use.
  */
 
+Player.prototype.useItem = function(item) {
+  if(item instanceof Weapon){
+    this.equip(item);
+  } else if (item instanceof Food){
+    this.eat(item);
+  } else {
+    return false;
+  }
+}
 
 /**
  * Player Class Method => equippedWith()
@@ -208,6 +353,17 @@
  * @return {string/boolean}   Weapon name or false if nothing is equipped.
  */
 
+ Player.prototype.equippedWith = function () {
+   if(this.equipped){
+     console.log(this.name 
+      + ' currently has ' + this.equipped.name + 'equipped.');
+      return this.equipped.name;
+   } else {
+    console.log(this.name 
+      + ' currently has nothing equipped.');
+     return false;
+   }
+ }
 
 /**
  * Class => Zombie(health, strength, speed)
@@ -225,17 +381,26 @@
  * @property {boolean} isAlive      Default value should be `true`.
  */
 
+function Zombie (health, strength, speed) {
+  let _maxHealth = health;
+
+  this.health = health;
+  this.strength = strength;
+  this.speed = speed;
+  this.isAlive = true;
+
+}
 
 /**
- * Class => FastZombie(health, strength, speed)
+ * Class => StrongZombie(health, strength, speed)
  * -----------------------------
- * Creates a fast zombie.
+ * Creates a Strong zombie.
  *
- * The FastZombie class constructor will call
+ * The StrongZombie class constructor will call
  *   the super class (Zombie) constructor
  *   while passing in the 3 Zombie constructor params
  *
- * @name FastZombie
+ * @name StrongZombie
  * @param {number} health           The zombie's health.
  * @param {number} strength         The zombie's strength.
  * @param {number} speed            The zombie's speed.
@@ -243,11 +408,16 @@
 
 
 /**
- * FastZombie Extends Zombie Class
+ * StrongZombie Extends Zombie Class
  * -----------------------------
  */
 
+ function FastZombie (health, strength, speed) {
+  Zombie.call(this,health,strength,speed);
+ }
 
+ FastZombie.prototype = Object.create(Zombie.prototype);
+ FastZombie.prototype.constructor =  FastZombie;
 
 /**
  * Class => StrongZombie(health, strength, speed)
@@ -269,7 +439,12 @@
  * StrongZombie Extends Zombie Class
  * -----------------------------
  */
+function StrongZombie (health, strength, speed) {
+  Zombie.call(this,health,strength,speed);
+ }
 
+ StrongZombie.prototype = Object.create(Zombie.prototype);
+ StrongZombie.prototype.constructor =  StrongZombie;
 
 
 /**
@@ -293,7 +468,12 @@
  * -----------------------------
  */
 
+function RangedZombie (health, strength, speed) {
+  Zombie.call(this,health,strength,speed);
+ }
 
+ RangedZombie.prototype = Object.create(Zombie.prototype);
+ RangedZombie.prototype.constructor =  RangedZombie;
 
 /**
  * Class => ExplodingZombie(health, strength, speed)
@@ -316,7 +496,12 @@
  * -----------------------------
  */
 
+function ExplodingZombie (health, strength, speed) {
+  Zombie.call(this,health,strength,speed);
+ }
 
+ ExplodingZombie.prototype = Object.create(Zombie.prototype);
+ ExplodingZombie.prototype.constructor =  ExplodingZombie;
 
 
 /**
@@ -326,7 +511,7 @@
 function runGame() {
   // var player = new Player("Joan", 500, 30, 70);
   // var zombie = new Zombie(40, 50, 20);
-  // var charger = new FastZombie(175, 25, 60);
+  // var charger = new StrongZombie(175, 25, 60);
   // var tank = new StrongZombie(250, 100, 15);
   // var spitter = new RangedZombie(150, 20, 20);
   // var boomer = new ExplodingZombie(50, 15, 10);
