@@ -130,6 +130,7 @@ function Player(name, health, strength, speed) {
 
 Player.prototype.checkPack = function () {
   let playerPack = this.getPack();
+  console.log(playerPack);
   if (playerPack.length > 0) {
     playerPack.forEach((itemInPack, i) => {
       console.log('Item' + (i + 1) + ': ' + itemInPack);
@@ -157,6 +158,17 @@ Player.prototype.checkPack = function () {
  * @return {boolean} true/false     Whether player was able to store item in pack.
  */
 
+Player.prototype.takeItem = function (item) {
+  let playerPack = this.getPack();
+
+  if (playerPack.length < 3) {
+    playerPack.push(item);
+    console.log(this.name + ' added ' + item.name + ' to pack.');
+  } else {
+    console.log('The pack is full, item could not be stored.');
+    return false;
+  }
+}
 
 /**
  * Player Class Method => discardItem(item)
@@ -184,6 +196,20 @@ Player.prototype.checkPack = function () {
  * @return {boolean} true/false     Whether player was able to remove item from pack.
  */
 
+Player.prototype.discardItem = function (item) {
+  let playerPack = this.getPack();
+  let indexOfItem = playerPack.indexOf(item);
+  let success = false;
+
+  if (indexOfItem > -1) {
+    playerPack.splice(indexOfItem, 1);
+    console.log(this.name + ' threw ' + item.name + ' out of the pack.');
+    success = true;
+  }
+
+  console.log('Nothing was found, so nothing was discarded.');
+  return success;
+}
 
 /**
  * Player Class Method => equip(itemToEquip)
@@ -204,6 +230,7 @@ Player.prototype.checkPack = function () {
  * @name equip
  * @param {Weapon} itemToEquip  The weapon item to equip.
  */
+
 
 
 /**
