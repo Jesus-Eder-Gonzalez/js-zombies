@@ -315,6 +315,7 @@ Player.prototype.eat = function (itemToEat) {
     }
   }
 }
+
 /**
  * Player Class Method => useItem(item)
  * -----------------------------
@@ -328,6 +329,15 @@ Player.prototype.eat = function (itemToEat) {
  * @param {Item/Weapon/Food} item   The item to use.
  */
 
+Player.prototype.useItem = function(item) {
+  if(item instanceof Weapon){
+    this.equip(item);
+  } else if (item instanceof Food){
+    this.eat(item);
+  } else {
+    return false;
+  }
+}
 
 /**
  * Player Class Method => equippedWith()
@@ -343,6 +353,17 @@ Player.prototype.eat = function (itemToEat) {
  * @return {string/boolean}   Weapon name or false if nothing is equipped.
  */
 
+ Player.prototype.equippedWith = function () {
+   if(this.equipped){
+     console.log(this.name 
+      + ' currently has ' + this.equipped.name + 'equipped.');
+      return this.equipped.name;
+   } else {
+    console.log(this.name 
+      + ' currently has nothing equipped.');
+     return false;
+   }
+ }
 
 /**
  * Class => Zombie(health, strength, speed)
@@ -360,17 +381,26 @@ Player.prototype.eat = function (itemToEat) {
  * @property {boolean} isAlive      Default value should be `true`.
  */
 
+function Zombie (health, strength, speed) {
+  let _maxHealth = health;
+
+  this.health = health;
+  this.strength = strength;
+  this.speed = speed;
+  this.isAlive = true;
+
+}
 
 /**
- * Class => FastZombie(health, strength, speed)
+ * Class => StrongZombie(health, strength, speed)
  * -----------------------------
- * Creates a fast zombie.
+ * Creates a Strong zombie.
  *
- * The FastZombie class constructor will call
+ * The StrongZombie class constructor will call
  *   the super class (Zombie) constructor
  *   while passing in the 3 Zombie constructor params
  *
- * @name FastZombie
+ * @name StrongZombie
  * @param {number} health           The zombie's health.
  * @param {number} strength         The zombie's strength.
  * @param {number} speed            The zombie's speed.
@@ -378,11 +408,16 @@ Player.prototype.eat = function (itemToEat) {
 
 
 /**
- * FastZombie Extends Zombie Class
+ * StrongZombie Extends Zombie Class
  * -----------------------------
  */
 
+ function FastZombie (health, strength, speed) {
+  Zombie.call(this,health,strength,speed);
+ }
 
+ FastZombie.prototype = Object.create(Zombie.prototype);
+ FastZombie.prototype.constructor =  FastZombie;
 
 /**
  * Class => StrongZombie(health, strength, speed)
@@ -404,7 +439,12 @@ Player.prototype.eat = function (itemToEat) {
  * StrongZombie Extends Zombie Class
  * -----------------------------
  */
+function StrongZombie (health, strength, speed) {
+  Zombie.call(this,health,strength,speed);
+ }
 
+ StrongZombie.prototype = Object.create(Zombie.prototype);
+ StrongZombie.prototype.constructor =  StrongZombie;
 
 
 /**
@@ -428,7 +468,12 @@ Player.prototype.eat = function (itemToEat) {
  * -----------------------------
  */
 
+function RangedZombie (health, strength, speed) {
+  Zombie.call(this,health,strength,speed);
+ }
 
+ RangedZombie.prototype = Object.create(Zombie.prototype);
+ RangedZombie.prototype.constructor =  RangedZombie;
 
 /**
  * Class => ExplodingZombie(health, strength, speed)
@@ -451,7 +496,12 @@ Player.prototype.eat = function (itemToEat) {
  * -----------------------------
  */
 
+function ExplodingZombie (health, strength, speed) {
+  Zombie.call(this,health,strength,speed);
+ }
 
+ ExplodingZombie.prototype = Object.create(Zombie.prototype);
+ ExplodingZombie.prototype.constructor =  ExplodingZombie;
 
 
 /**
@@ -461,7 +511,7 @@ Player.prototype.eat = function (itemToEat) {
 function runGame() {
   // var player = new Player("Joan", 500, 30, 70);
   // var zombie = new Zombie(40, 50, 20);
-  // var charger = new FastZombie(175, 25, 60);
+  // var charger = new StrongZombie(175, 25, 60);
   // var tank = new StrongZombie(250, 100, 15);
   // var spitter = new RangedZombie(150, 20, 20);
   // var boomer = new ExplodingZombie(50, 15, 10);
